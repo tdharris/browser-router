@@ -1,6 +1,6 @@
 #define MyAppName "Browser Router"
 #ifndef MyAppVersion
-  #define MyAppVersion "0.1.0"
+  #define MyAppVersion "0.0.2"
 #endif
 #define MyAppExeName "browser-router.exe"
 

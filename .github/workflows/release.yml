@@ -37,23 +37,38 @@ jobs:
           Compress-Archive -Path dist\browser-router.exe,dist\config.toml,dist\README.md `
             -DestinationPath dist\browser-router-x86_64-pc-windows-msvc.zip
 
-      - name: Read package version
-        id: package
+      - name: Resolve release version
+        id: version
         shell: pwsh
         run: |
           $metadata = cargo metadata --no-deps --format-version 1 | ConvertFrom-Json
-          "version=$($metadata.packages[0].version)" >> $env:GITHUB_OUTPUT
+          $packageVersion = $metadata.packages[0].version
+          $releaseVersion = $packageVersion
+
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $tag = "${{ github.ref_name }}"
+            if (-not $tag.StartsWith("v")) {
+              throw "Release tag '$tag' must start with 'v'"
+            }
+
+            $releaseVersion = $tag.Substring(1)
+            if ($releaseVersion -ne $packageVersion) {
+              throw "Tag version '$releaseVersion' does not match Cargo package version '$packageVersion'"
+            }
+          }
+
+          "version=$releaseVersion" >> $env:GITHUB_OUTPUT
 
       - name: Build installer
         shell: pwsh
         run: |
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" `
-            "/DMyAppVersion=${{ steps.package.outputs.version }}" installer.iss
+            "/DMyAppVersion=${{ steps.version.outputs.version }}" installer.iss
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: browser-router-${{ steps.package.outputs.version }}-windows-x64
+          name: browser-router-${{ steps.version.outputs.version }}-windows-x64
           if-no-files-found: error
           path: |
             dist/browser-router.exe
