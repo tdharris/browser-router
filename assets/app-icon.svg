@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#202b39"/>
+      <stop offset="1" stop-color="#111722"/>
+    </linearGradient>
+    <linearGradient id="left-route" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dbe4ee"/>
+    </linearGradient>
+    <linearGradient id="right-route" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#6ff7ff"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <clipPath id="left-half">
+      <rect width="512" height="1024"/>
+    </clipPath>
+    <clipPath id="right-half">
+      <rect x="512" width="512" height="1024"/>
+    </clipPath>
+  </defs>
+
+  <rect x="64" y="64" width="896" height="896" rx="224"
+        fill="url(#background)" stroke="#344256" stroke-width="10"/>
+
+  <path
+    d="M 512 180
+       C 512 300, 275 300, 275 512
+       C 275 724, 512 724, 512 844"
+    fill="none" stroke="url(#left-route)" stroke-width="78"
+    stroke-linecap="butt" stroke-linejoin="round" clip-path="url(#left-half)"/>
+
+  <path
+    d="M 512 180
+       C 512 300, 749 300, 749 512
+       C 749 724, 512 724, 512 844"
+    fill="none" stroke="url(#right-route)" stroke-width="78"
+    stroke-linecap="butt" stroke-linejoin="round" clip-path="url(#right-half)"/>
+</svg>

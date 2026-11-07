@@ -20,6 +20,7 @@ OutputBaseFilename=browser-router-{#MyAppVersion}-setup
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=assets\app-icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Files]
