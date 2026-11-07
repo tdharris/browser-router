@@ -1,0 +1,30 @@
+# browser-router example configuration
+#
+# Copy this file to:
+#   %APPDATA%\browser-router\config.toml
+#
+# Rules are evaluated in order. The first rule whose day, time, and domain
+# filters all match chooses the browser. Omitted or empty filters match all.
+
+[default_browser]
+# A full path is most reliable. A program name also works when it can be found
+# through the Windows executable search path.
+path = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
+args = []
+
+[[rules]]
+name = "Work Chrome during business hours"
+browser = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+args = ["--profile-directory=Work"]
+days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
+# The start is inclusive and the end is exclusive. Ranges may cross midnight.
+time_range = ["08:00", "18:00"]
+# Plain patterns are case-insensitive globs matched against the hostname.
+domains = ["*.internal.net", "*corp.com*"]
+
+[[rules]]
+name = "Jira hosts in Firefox"
+browser = 'C:\Program Files\Mozilla Firefox\firefox.exe'
+days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
+# Prefix a pattern with "regex:" for a case-insensitive regular expression.
+domains = ['regex:^jira[0-9]+\.example\.com$']

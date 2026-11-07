@@ -1,0 +1,74 @@
+name: Build and release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: "1.99.1"
+          target: x86_64-pc-windows-msvc
+
+      - name: Test
+        run: cargo test --locked
+
+      - name: Build release binary
+        run: cargo build --release --locked --target x86_64-pc-windows-msvc
+
+      - name: Package ZIP
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item target\x86_64-pc-windows-msvc\release\browser-router.exe dist\
+          Copy-Item config.toml,README.md dist\
+          Compress-Archive -Path dist\browser-router.exe,dist\config.toml,dist\README.md `
+            -DestinationPath dist\browser-router-x86_64-pc-windows-msvc.zip
+
+      - name: Read package version
+        id: package
+        shell: pwsh
+        run: |
+          $metadata = cargo metadata --no-deps --format-version 1 | ConvertFrom-Json
+          "version=$($metadata.packages[0].version)" >> $env:GITHUB_OUTPUT
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" `
+            "/DMyAppVersion=${{ steps.package.outputs.version }}" installer.iss
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-router-${{ steps.package.outputs.version }}-windows-x64
+          if-no-files-found: error
+          path: |
+            dist/browser-router.exe
+            dist/browser-router-x86_64-pc-windows-msvc.zip
+            dist/browser-router-*-setup.exe
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $installer = (Get-ChildItem dist\browser-router-*-setup.exe).FullName
+          gh release create "${{ github.ref_name }}" `
+            dist\browser-router.exe `
+            dist\browser-router-x86_64-pc-windows-msvc.zip `
+            $installer `
+            --generate-notes --verify-tag
