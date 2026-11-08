@@ -1,3 +1,5 @@
+<img src="assets/app-icon.svg" alt="" width="128">
+
 # Browser Router
 
 Browser Router is a small Windows 10/11 URL dispatcher. It registers as a
